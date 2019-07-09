@@ -4,7 +4,7 @@
 ---
 ## plan
 
-- [ ] [Getting started with Elasticsearch](./ch1-Getting_started.md) - doing...
+- [ ] [Getting started with Elasticsearch](./ch1-getting_started.md) - doing...
 - [ ] Search APIs
 - [ ] Aggregetions
 - [ ] Query DSL
