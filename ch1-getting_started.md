@@ -93,12 +93,140 @@ ip        heap.percent ram.percent cpu load_1m load_5m load_15m node.role master
 >Here, we can see our one node named "PB2SGZY", which is the single node that is currently in our cluster.
 
 ### List All Indices
-todo...
+现在让我们看一眼目录：
+>Now let’s take a peek at our indices:
+```
+GET /_cat/indices?v
+```
+
+响应结果：
+>And the response:
+```
+health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
+```
+
+简单的表示我们集群中还没没有目录。
+>Which simply means we have no indices yet in the cluster.
+
 ### Create an Index
-todo...
+现在让我们创建一个索引并命名为"customer"，然后再一次列出所有的索引：
+>Now let’s create an index named "customer" and then list all the indexes again:
+```
+PUT /customer?pretty
+GET /_cat/indices?v
+```
+
+第一个使用 **PUT** 命令创建了索引并名为"customer"。我们简单地在请求后面附上`pretty`，让她启动`pretty-print`模块来打印JSON返回结果。
+>The first command creates the index named "customer" using the PUT verb. We simply append pretty to the end of the call to tell it to pretty-print the JSON response (if any).
+
+响应结果：
+>And the response:
+```
+health status index    uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   customer 95SQ4TSUT7mWBT7VNHH67A   1   1          0            0       260b           260b
+```
+
+第二条命令返回的这些结果告诉我们，我们已经拥有一条索引名为"customer"， 而且他有一个独立分片和一个复制（默认）和索引里面包含0个文档。
+>The results of the second command tells us that we now have one index named customer and it has one primary shard and one replica (the defaults) and it contains zero documents in it.
+
+你也许会注意到"customer"索引有一个黄色状态标记。我们前面的论述中提到黄色意味着有些复制还未分配。这个索引出现这个原因是，Elasticsearch默认值创建一个复制。从我们只有一个节点启动那一刻起，那个复制还不能很好分配（为了高可用）直到稍后的时间点，有另一个节点加入集群。一旦那个复制被分配到第二个节点时，健康状态会变成绿色。
+>You might also notice that the customer index has a yellow health tagged to it. Recall from our previous discussion that yellow means that some replicas are not (yet) allocated. The reason this happens for this index is because Elasticsearch by default created one replica for this index. Since we only have one node running at the moment, that one replica cannot yet be allocated (for high availability) until a later point in time when another node joins the cluster. Once that replica gets allocated onto a second node, the health status for this index will turn to green.
+
 ### Index and Query a Document
-todo...
+现在让我们放一些东西到我们的"customer"索引中。我们将创建一个简单的"custoemr"文档到索引中，且ID=1，如下：
+>Let’s now put something into our customer index. We’ll index a simple customer document into the customer index, with an ID of 1 as follows:
+```
+PUT /customer/_doc/1?pretty
+{
+  "name": "John Doe"
+}
+```
+
+响应结果：
+>And the response:
+```
+{
+  "_index" : "customer",
+  "_type" : "_doc",
+  "_id" : "1",
+  "_version" : 1,
+  "result" : "created",
+  "_shards" : {
+    "total" : 2,
+    "successful" : 1,
+    "failed" : 0
+  },
+  "_seq_no" : 0,
+  "_primary_term" : 1
+}
+```
+
+从返回中，我们可以看到一个新的"customer"文档已经成功创建在索引中。这个文档一样有一个内置ID为1和我们指定的索引一样。
+>From the above, we can see that a new customer document was successfully created inside the customer index. The document also has an internal id of 1 which we specified at index time.
+
+这个很重要的注意Elasticsearch不需要你去明确创建一个索引，在你创建索引文档进去之前。在前面的例子中，如果索引不存在是，Elasticsearch会自动创建"customer"文档的索引。
+>It is important to note that Elasticsearch does not require you to explicitly create an index first before you can index documents into it. In the previous example, Elasticsearch will automatically create the customer index if it didn’t already exist beforehand.
+
+让我骂你重新检索这个刚刚创建的文档：
+>Let’s now retrieve that document that we just indexed:
+```
+GET /customer/_doc/1?pretty
+```
+
+响应结果：
+>And the response:
+```
+{
+  "_index" : "customer",
+  "_type" : "_doc",
+  "_id" : "1",
+  "_version" : 1,
+  "_seq_no" : 25,
+  "_primary_term" : 1,
+  "found" : true,
+  "_source" : { "name": "John Doe" }
+}
+```
+
+这里没有什么特别的除了 `found` 字段，着显示状态我们找到一个文档且ID为1，和另一个字段：`_source`,将会返回我们上一步创建索引时的完整的JSON结果的文档信息。
+>Nothing out of the ordinary here other than a field, found, stating that we found a document with the requested ID 1 and another field, _source, which returns the full JSON document that we indexed from the previous step.
+
 ### Delete an Index
+接下来我们来删除我们刚刚创建的索引然后列出索引的索引：
+>Now let’s delete the index that we just created and then list all the indexes again:
+```
+DELETE /customer?pretty
+GET /_cat/indices?v
+```
+
+响应结果：
+>And the response:
+```
+health status index uuid pri rep docs.count docs.deleted store.size pri.store.size
+```
+
+这个意味着索引已经被删除成功且我们回到刚启动并且无数据在集群中。
+>Which means that the index was deleted successfully and we are now back to where we started with nothing in our cluster.
+
+在我们继续学习前，让我们回顾一遍这些我们刚刚学过的API命令：
+>Before we move on, let’s take a closer look again at some of the API commands that we have learned so far:
+```
+PUT /customer
+PUT /customer/_doc/1
+{
+  "name": "John Doe"
+}
+GET /customer/_doc/1
+DELETE /customer
+```
+如果我们仔细的学习了上面的内容。我们可以实际的体验到一个模式来如何在Elasticsearch中存取数据。这个模式可以归纳为如下：
+>If we study the above commands carefully, we can actually see a pattern of how we access data in Elasticsearch. That pattern can be summarized as follows:
+```
+<HTTP Verb> /<Index>/<Endpoint>/<ID>
+```
+
+这个REST存取模式可以适用所有的API命令，如果你直接记住，你掌握 Elasticsearch 将会是一个很好的开始。
+>This REST access pattern is so pervasive throughout all the API commands that if you can simply remember it, you will have a good head start at mastering Elasticsearch.
 
 ## 修改数据（Modifying Your Data）
 Elasticsearch提供数据操作和查询的能力近乎实时。按默认设置，你可以认为从你添加、更新、删除数据（index/update/delte）到你的结果显示有1s延迟（刷新间隔）。这是与其他平台相比很重要的区别，比如SQL，当事务完成后，数据是直接有效。
@@ -123,7 +251,7 @@ PUT /customer/_doc/1?pretty
 }
 ```
 
-上面改变了同一个索引为1的文档对应的名字"John Doe" 为 "Jane Doe"。另外一种情况，我们使用不同的ID创建索引新的文档，
+上面改变了同一个索引为1的文档对应的名字"John Doe" 为 "Jane Doe"。另外一种情况，我们使用不同的ID创建索引新的文档，而已经在索引中的已存在文档则保持不被影响。
 >The above changes the name of the document with the ID of 1 from "John Doe" to "Jane Doe". If, on the other hand, we use a different ID, a new document will be indexed and the existing document(s) already in the index remains untouched.
 ```
 PUT /customer/_doc/2?pretty
@@ -185,7 +313,7 @@ POST /customer/_update/1?pretty
 >In the above example, ctx._source refers to the current source document that is about to be updated.
 
 Elasticsearch 提供给定表达式来更新多个文档（比如SQL `UPDATE-WHERE`表达式), 查看[docs-update-by-query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-update-by-query.html)
->Elasticsearch provides the ability to update multiple documents given a query condition (like an SQL UPDATE-WHERE statement). See ![docs-update-by-query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-update-by-query.html)
+>Elasticsearch provides the ability to update multiple documents given a query condition (like an SQL UPDATE-WHERE statement). See [docs-update-by-query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-update-by-query.html)
 
 ### Deleting Documents
 删除文档是相当简单的。这个例子示范如何删除ID为2的文档：
@@ -194,9 +322,9 @@ Elasticsearch 提供给定表达式来更新多个文档（比如SQL `UPDATE-WHE
 DELETE /customer/_doc/2?pretty
 ```
 
-查看![`delete_by_query API`(https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-delete-by-query.html), 来了解删除所有匹配的指定查询。值得注意的是这是一种非常高效的方式来删除整个索引代替来删除所有的文档。
+查看[delete_by_query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-delete-by-query.html), 来了解删除所有匹配的指定查询。值得注意的是这是一种非常高效的方式来删除整个索引代替来删除所有的文档。
 
->See the ![`delete_by_query API`]https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-delete-by-query.html) to delete all documents matching a specific query. It is worth noting that it is much more efficient to delete a whole index instead of deleting all documents with the Delete By Query API.
+>See the [delete_by_query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-delete-by-query.html) to delete all documents matching a specific query. It is worth noting that it is much more efficient to delete a whole index instead of deleting all documents with the Delete By Query API.
 
 ### Batch Processing
 为了进一步的创建、更新、删除个别文档，Elasticsearch 也提供了更为有效的操作来批量使用`_bluk`API。这个功能提供非常高效的原理来尽可能快地处理多个操作但尽可能更少的网络请求响应。
