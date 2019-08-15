@@ -92,7 +92,7 @@ ip        heap.percent ram.percent cpu load_1m load_5m load_15m node.role master
 这里，我们可以看到一个节点名"PB2SGZY", 这是我们集群中当前的一个单节点。
 >Here, we can see our one node named "PB2SGZY", which is the single node that is currently in our cluster.
 
-### List All Indices
+### 列出索引目录(List All Indices)
 现在让我们看一眼目录：
 >Now let’s take a peek at our indices:
 ```
@@ -108,7 +108,7 @@ health status index uuid pri rep docs.count docs.deleted store.size pri.store.si
 简单的表示我们集群中还没没有目录。
 >Which simply means we have no indices yet in the cluster.
 
-### Create an Index
+### 创建索引(Create an Index)
 现在让我们创建一个索引并命名为"customer"，然后再一次列出所有的索引：
 >Now let’s create an index named "customer" and then list all the indexes again:
 ```
@@ -132,7 +132,7 @@ yellow open   customer 95SQ4TSUT7mWBT7VNHH67A   1   1          0            0   
 你也许会注意到"customer"索引有一个黄色状态标记。我们前面的论述中提到黄色意味着有些复制还未分配。这个索引出现这个原因是，Elasticsearch默认值创建一个复制。从我们只有一个节点启动那一刻起，那个复制还不能很好分配（为了高可用）直到稍后的时间点，有另一个节点加入集群。一旦那个复制被分配到第二个节点时，健康状态会变成绿色。
 >You might also notice that the customer index has a yellow health tagged to it. Recall from our previous discussion that yellow means that some replicas are not (yet) allocated. The reason this happens for this index is because Elasticsearch by default created one replica for this index. Since we only have one node running at the moment, that one replica cannot yet be allocated (for high availability) until a later point in time when another node joins the cluster. Once that replica gets allocated onto a second node, the health status for this index will turn to green.
 
-### Index and Query a Document
+### 创建索引和查询文档（Index and Query a Document）
 现在让我们放一些东西到我们的"customer"索引中。我们将创建一个简单的"custoemr"文档到索引中，且ID=1，如下：
 >Let’s now put something into our customer index. We’ll index a simple customer document into the customer index, with an ID of 1 as follows:
 ```
@@ -167,7 +167,7 @@ PUT /customer/_doc/1?pretty
 这个很重要的注意Elasticsearch不需要你去明确创建一个索引，在你创建索引文档进去之前。在前面的例子中，如果索引不存在是，Elasticsearch会自动创建"customer"文档的索引。
 >It is important to note that Elasticsearch does not require you to explicitly create an index first before you can index documents into it. In the previous example, Elasticsearch will automatically create the customer index if it didn’t already exist beforehand.
 
-让我骂你重新检索这个刚刚创建的文档：
+让我们重新检索这个刚刚创建的文档：
 >Let’s now retrieve that document that we just indexed:
 ```
 GET /customer/_doc/1?pretty
@@ -191,7 +191,7 @@ GET /customer/_doc/1?pretty
 这里没有什么特别的除了 `found` 字段，着显示状态我们找到一个文档且ID为1，和另一个字段：`_source`,将会返回我们上一步创建索引时的完整的JSON结果的文档信息。
 >Nothing out of the ordinary here other than a field, found, stating that we found a document with the requested ID 1 and another field, _source, which returns the full JSON document that we indexed from the previous step.
 
-### Delete an Index
+### 删除索引（Delete an Index）
 接下来我们来删除我们刚刚创建的索引然后列出索引的索引：
 >Now let’s delete the index that we just created and then list all the indexes again:
 ```
@@ -232,7 +232,7 @@ DELETE /customer
 Elasticsearch提供数据操作和查询的能力近乎实时。按默认设置，你可以认为从你添加、更新、删除数据（index/update/delte）到你的结果显示有1s延迟（刷新间隔）。这是与其他平台相比很重要的区别，比如SQL，当事务完成后，数据是直接有效。
 >Elasticsearch provides data manipulation and search capabilities in near real time. By default, you can expect a one second delay (refresh interval) from the time you index/update/delete your data until the time that it appears in your search results. This is an important distinction from other platforms like SQL wherein data is immediately available after a transaction is completed.
 
-#### Indexing/Replacing Documentsedit
+#### 创建重建文档（Indexing/Replacing Document）
 我们先提前看如何添加一个简单文档的索引。再一次重复执行命令：
 >We’ve previously seen how we can index a single document. Let’s recall that command again:
 ```
@@ -278,7 +278,7 @@ POST /customer/_doc?pretty
 注意上面的例子，当我们不需要指定的ID时，我们使用 **POST** 代替 PUT 方法。
 >Note that in the above case, we are using the POST verb instead of PUT since we didn’t specify an ID.
 
-### Updating Documents
+### 更新文档（Updating Documents）
 为了进一步的可以创建索引和替换文档，我们可以更新文档。注意通过这种方式，实际上 Elasticsearch 不能直接更新。当我们做一次更新时，Elasticsearch 删除旧文档然后再创建了新的文档索引。
 >In addition to being able to index and replace documents, we can also update documents. Note though that Elasticsearch does not actually do in-place updates under the hood. Whenever we do an update, Elasticsearch deletes the old document and then indexes a new document with the update applied to it in one shot.
 
@@ -315,7 +315,7 @@ POST /customer/_update/1?pretty
 Elasticsearch 提供给定表达式来更新多个文档（比如SQL `UPDATE-WHERE`表达式), 查看[docs-update-by-query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-update-by-query.html)
 >Elasticsearch provides the ability to update multiple documents given a query condition (like an SQL UPDATE-WHERE statement). See [docs-update-by-query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-update-by-query.html)
 
-### Deleting Documents
+### 删除文档（Deleting Documents）
 删除文档是相当简单的。这个例子示范如何删除ID为2的文档：
 >Deleting a document is fairly straightforward. This example shows how to delete our previous customer with the ID of 2:
 ```
@@ -326,7 +326,7 @@ DELETE /customer/_doc/2?pretty
 
 >See the [delete_by_query API](https://www.elastic.co/guide/en/elasticsearch/reference/7.3/docs-delete-by-query.html) to delete all documents matching a specific query. It is worth noting that it is much more efficient to delete a whole index instead of deleting all documents with the Delete By Query API.
 
-### Batch Processing
+### 合并处理（Batch Processing）
 为了进一步的创建、更新、删除个别文档，Elasticsearch 也提供了更为有效的操作来批量使用`_bluk`API。这个功能提供非常高效的原理来尽可能快地处理多个操作但尽可能更少的网络请求响应。
 >In addition to being able to index, update, and delete individual documents, Elasticsearch also provides the ability to perform any of the above operations in batches using the _bulk API. This functionality is important in that it provides a very efficient mechanism to do multiple operations as fast as possible with as few network roundtrips as possible.
 
@@ -396,7 +396,7 @@ yellow open   bank  l7sSYV2cQXmu6_4rJWVIww   5   1       1000            0    12
 以上意外这我们已经成功的创建了1000条文档所以到"bank"索引中。
 >Which means that we just successfully bulk indexed 1000 documents into the bank index.
 
-### The Search API
+### 查询API（The Search API）
 现在让我们从简单的查询开始。有两种基础的查询方式：一是通过REST请求地址URI中发送查询参数，另一种是把参数放在请求体body中。请求体body允许你加载更多表达式和通过JSON格式定义查询。我们将用一个请求地址发送参数的例子，但在剩余的这个教程中，我们都会使用请求体body的方式。
 >Now let’s start with some simple searches. There are two basic ways to run searches: one is by sending search parameters through the REST request URI and the other by sending them through the REST request body. The request body method allows you to be more expressive and also to define your searches in a more readable JSON format. We’ll try one example of the request URI method but for the remainder of this tutorial, we will exclusively be using the request body method.
 
@@ -492,7 +492,7 @@ GET /bank/_search
 明白获取查询返回的结果是很重要的，Elasticsearch是用请求完全完成，而且不需要大部分任何的服务端资源或者打开游标到返回结果中。这是强烈的对比于其他不同平台比如SQL，在这些中平台，最初可能从查询结果中预先获取一个部分子集，然后不得不继续返回服务器，如果你想使用一些服务端游标状态来获取（或者分页）剩下的返回结果。（译注：不是很明白这段话，意思是ES可以一次获取大量数据不需要分页? 还是说统计等多种信息和数据集都在一次查询返回中不需要多次查询。）
 >It is important to understand that once you get your search results back, Elasticsearch is completely done with the request and does not maintain any kind of server-side resources or open cursors into your results. This is in stark contrast to many other platforms such as SQL wherein you may initially get a partial subset of your query results up-front and then you have to continuously go back to the server if you want to fetch (or page through) the rest of the results using some kind of stateful server-side cursor.
 
-### Introducing the Query Language
+### 介绍查询语言（Introducing the Query Language）
 Elasticsearch 提供了JSON风格的领域特殊语言让我们可以施工用执行查询。关于[Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/7.2/query-dsl.html)。这种查询语言相当综合而且乍一看很吓人，但是是很好的方式通过实际来学习,让我们开始一个简单的例子。
 
 >Elasticsearch provides a JSON-style domain-specific language that you can use to execute queries. This is referred to as the Query DSL. The query language is quite comprehensive and can be intimidating at first glance but the best way to actually learn it is to start with a few basic examples.
@@ -546,7 +546,7 @@ GET /bank/_search
 }
 ```
 
-### Executing Searches
+### 执行查询（Executing Searches）
 现在我们已经看过基础的查询参数，让我们深挖更多的Query DSL。首先让我们看一眼返回文档字段。默认的，全部JSON文档作为返回结果的一部分。（`_source`）。如果我们不想要整个源文档返回，我们有能力只请求返回少量包含在源文档中的字段。
 >Now that we have seen a few of the basic search parameters, let’s dig in some more into the Query DSL. Let’s first take a look at the returned document fields. By default, the full JSON document is returned as part of all searches. This is referred to as the source (_source field in the search hits). If we don’t want the entire source document returned, we have the ability to request only a few fields from within source to be returned.
 
@@ -565,7 +565,7 @@ GET /bank/_search
 如果你来自SQL后端，上面多少有些跟SQL 的SELECT FROM 的字段列表概念相似。
 >If you come from a SQL background, the above is somewhat similar in concept to the SQL SELECT FROM field list.
 
-现在让我们移到查询部分。
+现在让我们移到查询部分。在前面，我们看到如何`match_all`查询是用户匹配所有文档。现在让我们介绍一种新的查询叫`match`查询，可以作为基础的查询字段(比如：一个查询完成指定一个字段或者一个数据集的字段)。
 >Now let’s move on to the query part. Previously, we’ve seen how the match_all query is used to match all documents. Let’s now introduce a new query called the match query, which can be thought of as a basic fielded search query (i.e. a search done against a specific field or set of fields).
 
 这个例子返回`account_number` 值为20的：
@@ -684,7 +684,7 @@ GET /bank/_search
 }
 ```
 
-### Executing Filters
+### 执行过滤（Executing Filters）
 在前面的小节中，我们跳过一些详细的文档评分（查询结果中的`_score`字段）。这个分数是数值，是文档匹配查询指定值的相关性如何。在更高的分数，则文档相关更大；更低的评分，则文档相关性更小。
 >In the previous section, we skipped over a little detail called the document score (_score field in the search results). The score is a numeric value that is a relative measure of how well the document matches the search query that we specified. The higher the score, the more relevant the document is, the lower the score, the less relevant the document is.
 
